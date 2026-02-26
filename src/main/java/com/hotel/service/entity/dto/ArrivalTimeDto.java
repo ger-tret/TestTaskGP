@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class ArrivalTimeDto {
-    String checkIn;
-    String checkOut;
+    private String checkIn;
+    private String checkOut;
 }

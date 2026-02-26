@@ -4,10 +4,10 @@ import lombok.Data;
 
 @Data
 public class HotelCreateDto {
-    String name;
-    String description;
-    String brand;
-    AddressDto address;
-    ContactDto contacts;
-    ArrivalTimeDto arrivalTime;
+    private String name;
+    private String description;
+    private String brand;
+    private AddressDto address;
+    private ContactDto contacts;
+    private ArrivalTimeDto arrivalTime;
 }

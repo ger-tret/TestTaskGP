@@ -6,9 +6,9 @@ import lombok.Data;
 @Data
 public class HotelShortDto {
     @Id
-    Long id;
-    String name;
-    String description;
-    String address;
-    String phone;
+    private Long id;
+    private String name;
+    private String description;
+    private String address;
+    private String phone;
 }

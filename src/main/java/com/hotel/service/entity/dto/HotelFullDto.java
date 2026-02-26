@@ -8,13 +8,13 @@ import java.util.Set;
 @Data
 public class HotelFullDto {
     @Id
-    Long id;
-    String name;
-    String description;
-    String brand;
-    AddressDto address;
-    ContactDto contact;
-    ArrivalTimeDto arrivalTime;
-    Set<String> amenities;
+    private Long id;
+    private String name;
+    private String description;
+    private String brand;
+    private AddressDto address;
+    private ContactDto contact;
+    private ArrivalTimeDto arrivalTime;
+    private Set<String> amenities;
 
 }
