@@ -5,51 +5,49 @@ import com.hotel.service.entity.dto.HotelCreateDto;
 import com.hotel.service.entity.dto.HotelFullDto;
 import com.hotel.service.entity.dto.HotelShortDto;
 import com.hotel.service.service.HotelService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/property-view")
 @RequiredArgsConstructor
+@Validated
 public class HotelController {
 
     private final HotelService hotelService;
 
-    @GetMapping("/hotels")
-    public List<HotelShortDto> getAllHotels() {
-        return hotelService.getAllHotels();
+    @PostMapping("/hotels")
+    public ResponseEntity<HotelShortDto> createHotel(@Valid @RequestBody HotelCreateDto dto) {
+        HotelShortDto created = hotelService.createHotel(dto);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/hotels/{id}/amenities")
+    public ResponseEntity<HotelFullDto> updateAmenities(
+            @PathVariable Long id,
+            @RequestBody List<String> amenities) {
+
+        hotelService.addAmenities(id, amenities);
+        return ResponseEntity.ok(hotelService.getHotelById(id));
     }
 
     @GetMapping("/hotels/{id}")
-    public HotelFullDto getHotelById(@PathVariable Long id) {
-        return hotelService.getHotelById(id);
-    }
-
-    @GetMapping("/search")
-    public List<HotelShortDto> search(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String brand,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String country,
-            @RequestParam(required = false) String amenity) {
-        return hotelService.searchHotels(name, brand, city, country, amenity);
-    }
-
-    @PostMapping("/hotels")
-    public HotelShortDto createHotel(@RequestBody HotelCreateDto dto) {
-        return hotelService.createHotel(dto);
-    }
-
-    @PostMapping("/hotels/{id}/amenities")
-    public void addAmenities(@PathVariable Long id, @RequestBody List<String> amenities) {
-        hotelService.addAmenities(id, amenities);
-    }
-
-    @GetMapping("/histogram/{param}")
-    public Map<String, Long> getHistogram(@PathVariable String param) {
-        return hotelService.getHistogram(param);
+    public ResponseEntity<HotelFullDto> getHotelById(@PathVariable Long id) {
+        return ResponseEntity.ok(hotelService.getHotelById(id));
     }
 }

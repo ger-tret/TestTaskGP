@@ -8,10 +8,12 @@ import com.hotel.service.exception.ResourceNotFoundException;
 import com.hotel.service.repository.HotelRepository;
 import com.hotel.service.repository.QueryResult;
 import com.hotel.service.service.mapper.HotelMapper;
+import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -61,15 +63,35 @@ public class HotelServiceImpl implements HotelService {
     public List<HotelShortDto> searchHotels(String name, String brand, String city, String country, String amenity) {
         Specification<Hotel> spec = Specification.where(null);
 
-        if (name != null) spec = spec.and((root, query, cb) -> cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-        if (brand != null) spec = spec.and((root, query, cb) -> cb.equal(root.get("brand"), brand));
-        if (city != null) spec = spec.and((root, query, cb) -> cb.equal(root.get("address").get("city"), city));
-        if (country != null) spec = spec.and((root, query, cb) -> cb.equal(root.get("address").get("country"), country));
-        if (amenity != null) spec = spec.and((root, query, cb) -> cb.isMember(amenity, root.get("amenities")));
+        spec = addSpec(spec, "name", name, true);
+        spec = addSpec(spec, "brand", brand, false);
+        spec = addSpec(spec, "address.city", city, false);
+        spec = addSpec(spec, "address.country", country, false);
+
+        if (StringUtils.hasText(amenity)) {
+            spec = spec.and((root, query, cb) -> cb.isMember(amenity, root.get("amenities")));
+        }
 
         return hotelRepository.findAll(spec).stream()
                 .map(hotelMapper::toShortDto)
                 .collect(Collectors.toList());
+    }
+
+    private Specification<Hotel> addSpec(Specification<Hotel> spec, String field, String value, boolean isLike) {
+        if (!StringUtils.hasText(value)) return spec;
+
+        return spec.and((root, query, cb) -> {
+            Path<String> path = root;
+            for (String part : field.split("\\.")) {
+                path = path.get(part);
+            }
+
+            if (isLike) {
+                return cb.like(cb.lower(path), "%" + value.toLowerCase() + "%");
+            } else {
+                return cb.equal(cb.lower(path), value.toLowerCase());
+            }
+        });
     }
 
     @Override
