@@ -8,6 +8,7 @@ import com.hotel.service.exception.ResourceNotFoundException;
 import com.hotel.service.repository.HotelRepository;
 import com.hotel.service.repository.QueryResult;
 import com.hotel.service.service.mapper.HotelMapper;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
@@ -78,18 +79,21 @@ public class HotelServiceImpl implements HotelService {
     }
 
     private Specification<Hotel> addSpec(Specification<Hotel> spec, String field, String value, boolean isLike) {
-        if (!StringUtils.hasText(value)) return spec;
+        if (!org.springframework.util.StringUtils.hasText(value)) return spec;
 
         return spec.and((root, query, cb) -> {
-            Path<String> path = root;
+            Path<?> path = root;
+
             for (String part : field.split("\\.")) {
                 path = path.get(part);
             }
 
+            Expression<String> stringExpr = path.as(String.class);
+
             if (isLike) {
-                return cb.like(cb.lower(path), "%" + value.toLowerCase() + "%");
+                return cb.like(cb.lower(stringExpr), "%" + value.toLowerCase() + "%");
             } else {
-                return cb.equal(cb.lower(path), value.toLowerCase());
+                return cb.equal(cb.lower(stringExpr), value.toLowerCase());
             }
         });
     }
