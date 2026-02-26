@@ -8,6 +8,8 @@ spring:
   datasource:
     url: jdbc:h2:mem:hoteldb;DB_CLOSE_DELAY=-1;CASE_INSENSITIVE_IDENTIFIERS=TRUE
     driverClassName: org.h2.Driver
+    username: test_user
+    password: testing
 
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
