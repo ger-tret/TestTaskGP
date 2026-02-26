@@ -11,11 +11,13 @@ import com.hotel.service.service.mapper.HotelMapper;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import org.springframework.data.domain.Pageable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,10 +29,9 @@ public class HotelServiceImpl implements HotelService {
     private final HotelMapper hotelMapper;
 
     @Override
-    public List<HotelShortDto> getAllHotels() {
-        return hotelRepository.findAll().stream()
-                .map(hotelMapper::toShortDto)
-                .collect(Collectors.toList());
+    public Page<HotelShortDto> getAllHotels(Pageable pageable) {
+        return hotelRepository.findAll(pageable)
+                .map(hotelMapper::toShortDto);
     }
 
     @Override
@@ -75,7 +76,7 @@ public class HotelServiceImpl implements HotelService {
 
         return hotelRepository.findAll(spec).stream()
                 .map(hotelMapper::toShortDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Specification<Hotel> addSpec(Specification<Hotel> spec, String field, String value, boolean isLike) {

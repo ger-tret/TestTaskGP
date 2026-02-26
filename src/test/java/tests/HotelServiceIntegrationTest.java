@@ -1,3 +1,6 @@
+package tests;
+
+import com.hotel.service.HotelServiceApplication;
 import com.hotel.service.entity.Address;
 import com.hotel.service.entity.ArrivalTime;
 import com.hotel.service.entity.Contact;
@@ -15,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(classes = HotelServiceApplication.class)
 @Transactional
 public class HotelServiceIntegrationTest {
 
